@@ -1,6 +1,6 @@
 import NewPresenter from './new-presenter';
 import { convertBase64ToBlob } from '../../utils';
-import * as CityCareAPI from '../../data/api';
+import * as StorizonAPI from '../../data/api';
 import { generateLoaderAbsoluteTemplate } from '../../templates';
 import Camera from '../../utils/camera';
 import Map from '../../utils/map';
@@ -18,10 +18,10 @@ export default class NewPage {
       <section>
         <div class="new-report__header">
           <div class="container">
-            <h1 class="new-report__header__title">Buat Laporan Baru</h1>
+            <h1 class="new-report__header__title">Buat Story Baru</h1>
             <p class="new-report__header__description">
-              Silakan lengkapi formulir di bawah untuk membuat laporan baru.<br>
-              Pastikan laporan yang dibuat adalah valid.
+              Silakan lengkapi formulir di bawah untuk membuat story baru.<br>
+              Pastikan story yang dibuat adalah valid.
             </p>
           </div>
         </div>
@@ -31,59 +31,13 @@ export default class NewPage {
         <div class="new-form__container">
           <form id="new-form" class="new-form">
             <div class="form-control">
-              <label for="title-input" class="new-form__title__title">Judul Laporan</label>
-  
-              <div class="new-form__title__container">
-                <input
-                  id="title-input"
-                  name="title"
-                  placeholder="Masukkan judul laporan"
-                  aria-describedby="title-input-more-info"
-                >
-              </div>
-              <div id="title-input-more-info">Pastikan judul laporan dibuat dengan jelas dan deskriptif dalam 1 kalimat.</div>
-            </div>
-            <div class="form-control">
-              <div class="new-form__damage-level__title">Tingkat Kerusakan</div>
-  
-              <div class="new-form__damage-level__container">
-                <div class="new-form__damage-level__minor__container">
-                  <input id="damage-level-minor-input" type="radio" name="damageLevel" value="minor">
-                  <label for="damage-level-minor-input">
-                    Rendah
-                    <span title="Contoh: Lubang kecil di jalan, kerusakan ringan pada tanda lalu lintas, dll.">
-                      <i class="far fa-question-circle"></i>
-                    </span>
-                  </label>
-                </div>
-                <div class="new-form__damage-level__moderate__container">
-                  <input id="damage-level-moderate-input" type="radio" name="damageLevel" value="moderate">
-                  <label for="damage-level-moderate-input">
-                    Sedang
-                    <span title="Contoh: Jalan retak besar, trotoar amblas, lampu jalan mati, dll.">
-                      <i class="far fa-question-circle"></i>
-                    </span>
-                  </label>
-                </div>
-                <div class="new-form__damage-level__severe__container">
-                  <input id="damage-level-severe-input" type="radio" name="damageLevel" value="severe">
-                  <label for="damage-level-severe-input">
-                    Berat
-                    <span title="Contoh: Jembatan ambruk, tiang listrik roboh, longsor yang menutup jalan, dll.">
-                      <i class="far fa-question-circle"></i>
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="form-control">
               <label for="description-input" class="new-form__description__title">Keterangan</label>
   
               <div class="new-form__description__container">
                 <textarea
                   id="description-input"
                   name="description"
-                  placeholder="Masukkan keterangan lengkap laporan. Anda dapat menjelaskan apa kejadiannya, dimana, kapan, dll."
+                  placeholder="Masukkan keterangan lengkap story. Anda dapat menjelaskan apa kejadiannya, dimana, kapan, dll."
                 ></textarea>
               </div>
             </div>
@@ -144,7 +98,7 @@ export default class NewPage {
             </div>
             <div class="form-buttons">
               <span id="submit-button-container">
-                <button class="btn" type="submit">Buat Laporan</button>
+                <button class="btn" type="submit">Buat Story</button>
               </span>
               <a class="btn btn-outline" href="#/">Batal</a>
             </div>
@@ -157,7 +111,7 @@ export default class NewPage {
   async afterRender() {
     this.#presenter = new NewPresenter({
       view: this,
-      model: CityCareAPI,
+      model: StorizonAPI,
     });
     this.#takenDocumentations = [];
 
@@ -171,12 +125,10 @@ export default class NewPage {
       event.preventDefault();
 
       const data = {
-        title: this.#form.elements.namedItem('title').value,
-        damageLevel: this.#form.elements.namedItem('damageLevel').value,
         description: this.#form.elements.namedItem('description').value,
-        evidenceImages: this.#takenDocumentations.map((picture) => picture.blob),
-        latitude: this.#form.elements.namedItem('latitude').value,
-        longitude: this.#form.elements.namedItem('longitude').value,
+        photo: this.#takenDocumentations.map((picture) => picture.blob),
+        lat: this.#form.elements.namedItem('latitude').value,
+        lon: this.#form.elements.namedItem('longitude').value,
       };
       await this.#presenter.postNewReport(data);
     });
@@ -224,7 +176,9 @@ export default class NewPage {
     const centerCoordinate = this.#map.getCenter();
     const draggableMarker = this.#map.addMarker(
       [centerCoordinate.latitude, centerCoordinate.longitude],
-      { draggable: 'true' },
+      {
+        draggable: 'true',
+      },
     );
 
     this.#updateLatLngInput(centerCoordinate.latitude, centerCoordinate.longitude);
@@ -236,10 +190,9 @@ export default class NewPage {
 
     this.#map.addMapEventListener('click', (event) => {
       draggableMarker.setLatLng(event.latlng);
+      // Keep center with user view
+      event.sourceTarget.flyTo(event.latlng);
     });
-
-    // Keep center with user view
-    event.sourceTarget.flyTo(event.latlng);
   }
 
   #updateLatLngInput(latitude, longitude) {
@@ -351,14 +304,14 @@ export default class NewPage {
   showSubmitLoadingButton() {
     document.getElementById('submit-button-container').innerHTML = `
       <button class="btn" type="submit" disabled>
-        <i class="fas fa-spinner loader-button"></i> Buat Laporan
+        <i class="fas fa-spinner loader-button"></i> Buat Story
       </button>
     `;
   }
 
   hideSubmitLoadingButton() {
     document.getElementById('submit-button-container').innerHTML = `
-      <button class="btn" type="submit">Buat Laporan</button>
+      <button class="btn" type="submit">Buat Story</button>
     `;
   }
 }

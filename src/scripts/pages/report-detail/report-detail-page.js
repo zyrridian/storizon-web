@@ -3,7 +3,7 @@ import {
   generateCommentsListErrorTemplate,
   generateLoaderAbsoluteTemplate,
   generateRemoveReportButtonTemplate,
-  generateReportCommentItemTemplate,
+  // generateReportCommentItemTemplate,
   generateReportDetailErrorTemplate,
   generateReportDetailTemplate,
   generateSaveReportButtonTemplate,
@@ -12,7 +12,7 @@ import { createCarousel } from '../../utils';
 import ReportDetailPresenter from './report-detail-presenter';
 import { parseActivePathname } from '../../routes/url-parser';
 import Map from '../../utils/map';
-import * as CityCareAPI from '../../data/api';
+import * as StorizonAPI from '../../data/api';
 
 export default class ReportDetailPage {
   #presenter = null;
@@ -34,7 +34,7 @@ export default class ReportDetailPage {
           <div class="report-detail__comments-form__container">
             <h2 class="report-detail__comments-form__title">Beri Tanggapan</h2>
             <form id="comments-list-form" class="report-detail__comments-form__form">
-              <textarea name="body" placeholder="Beri tanggapan terkait laporan."></textarea>
+              <textarea name="body" placeholder="Beri tanggapan terkait story."></textarea>
               <div id="submit-button-container">
                 <button class="btn" type="submit">Tanggapi</button>
               </div>
@@ -53,25 +53,25 @@ export default class ReportDetailPage {
   async afterRender() {
     this.#presenter = new ReportDetailPresenter(parseActivePathname().id, {
       view: this,
-      apiModel: CityCareAPI,
+      apiModel: StorizonAPI,
     });
 
-    this.#setupForm();
+    // this.#setupForm();
 
     this.#presenter.showReportDetail();
-    this.#presenter.getCommentsList();
+    // this.#presenter.getCommentsList();
   }
 
   async populateReportDetailAndInitialMap(message, report) {
     document.getElementById('report-detail').innerHTML = generateReportDetailTemplate({
-      title: report.title,
+      // title: report.title,
       description: report.description,
-      damageLevel: report.damageLevel,
-      evidenceImages: report.evidenceImages,
-      latitudeLocation: report.location.latitude,
-      longitudeLocation: report.location.longitude,
-      location: report.location,
-      reporterName: report.reporter.name,
+      // damageLevel: report.damageLevel,
+      photoUrl: report.photoUrl,
+      lat: report.lat,
+      lon: report.lon,
+      placeName: report.placeName,
+      name: report.name,
       createdAt: report.createdAt,
     });
 
@@ -81,9 +81,9 @@ export default class ReportDetailPage {
     // Map
     await this.#presenter.showReportDetailMap();
     if (this.#map) {
-      const reportCoordinate = [report.location.latitude, report.location.longitude];
-      const markerOptions = { alt: report.title };
-      const popupOptions = { content: report.title };
+      const reportCoordinate = [report.lat, report.lon];
+      const markerOptions = { alt: report.name };
+      const popupOptions = { content: report.name };
       this.#map.changeCamera(reportCoordinate);
       this.#map.addMarker(reportCoordinate, markerOptions, popupOptions);
     }
@@ -97,38 +97,38 @@ export default class ReportDetailPage {
     document.getElementById('report-detail').innerHTML = generateReportDetailErrorTemplate(message);
   }
 
-  populateReportDetailComments(message, comments) {
-    if (comments.length <= 0) {
-      this.populateCommentsListEmpty();
-      return;
-    }
+  // populateReportDetailComments(message, comments) {
+  //   if (comments.length <= 0) {
+  //     this.populateCommentsListEmpty();
+  //     return;
+  //   }
 
-    const html = comments.reduce(
-      (accumulator, comment) =>
-        accumulator.concat(
-          generateReportCommentItemTemplate({
-            photoUrlCommenter: comment.commenter.photoUrl,
-            nameCommenter: comment.commenter.name,
-            body: comment.body,
-          }),
-        ),
-      '',
-    );
+  //   const html = comments.reduce(
+  //     (accumulator, comment) =>
+  //       accumulator.concat(
+  //         generateReportCommentItemTemplate({
+  //           photoUrlCommenter: comment.commenter.photoUrl,
+  //           nameCommenter: comment.commenter.name,
+  //           body: comment.body,
+  //         }),
+  //       ),
+  //     '',
+  //   );
 
-    document.getElementById('report-detail-comments-list').innerHTML = `
-      <div class="report-detail__comments-list">${html}</div>
-    `;
-  }
+  //   document.getElementById('report-detail-comments-list').innerHTML = `
+  //     <div class="report-detail__comments-list">${html}</div>
+  //   `;
+  // }
 
-  populateCommentsListEmpty() {
-    document.getElementById('report-detail-comments-list').innerHTML =
-      generateCommentsListEmptyTemplate();
-  }
+  // populateCommentsListEmpty() {
+  //   document.getElementById('report-detail-comments-list').innerHTML =
+  //     generateCommentsListEmptyTemplate();
+  // }
 
-  populateCommentsListError(message) {
-    document.getElementById('report-detail-comments-list').innerHTML =
-      generateCommentsListErrorTemplate(message);
-  }
+  // populateCommentsListError(message) {
+  //   document.getElementById('report-detail-comments-list').innerHTML =
+  //     generateCommentsListErrorTemplate(message);
+  // }
 
   async initialMap() {
     this.#map = await Map.build('#map', {
@@ -136,28 +136,28 @@ export default class ReportDetailPage {
     });
   }
 
-  #setupForm() {
-    this.#form = document.getElementById('comments-list-form');
-    this.#form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+  // #setupForm() {
+  //   this.#form = document.getElementById('comments-list-form');
+  //   this.#form.addEventListener('submit', async (event) => {
+  //     event.preventDefault();
 
-      const data = {
-        body: this.#form.elements.namedItem('body').value,
-      };
-      await this.#presenter.postNewComment(data);
-    });
-  }
+  //     const data = {
+  //       body: this.#form.elements.namedItem('body').value,
+  //     };
+  //     await this.#presenter.postNewComment(data);
+  //   });
+  // }
 
-  postNewCommentSuccessfully(message) {
-    console.log(message);
+  // postNewCommentSuccessfully(message) {
+  //   console.log(message);
 
-    this.#presenter.getCommentsList();
-    this.clearForm();
-  }
+  //   this.#presenter.getCommentsList();
+  //   this.clearForm();
+  // }
 
-  postNewCommentFailed(message) {
-    alert(message);
-  }
+  // postNewCommentFailed(message) {
+  //   alert(message);
+  // }
 
   clearForm() {
     this.#form.reset();
@@ -168,7 +168,7 @@ export default class ReportDetailPage {
       generateSaveReportButtonTemplate();
 
     document.getElementById('report-detail-save').addEventListener('click', async () => {
-      alert('Fitur simpan laporan akan segera hadir!');
+      alert('Fitur simpan story akan segera hadir!');
     });
   }
 
@@ -177,13 +177,13 @@ export default class ReportDetailPage {
       generateRemoveReportButtonTemplate();
 
     document.getElementById('report-detail-remove').addEventListener('click', async () => {
-      alert('Fitur simpan laporan akan segera hadir!');
+      alert('Fitur simpan story akan segera hadir!');
     });
   }
 
   addNotifyMeEventListener() {
     document.getElementById('report-detail-notify-me').addEventListener('click', () => {
-      alert('Fitur notifikasi laporan akan segera hadir!');
+      alert('Fitur notifikasi story akan segera hadir!');
     });
   }
 

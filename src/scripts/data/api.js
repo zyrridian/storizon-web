@@ -5,25 +5,25 @@ const ENDPOINTS = {
   // Auth
   REGISTER: `${BASE_URL}/register`,
   LOGIN: `${BASE_URL}/login`,
-  MY_USER_INFO: `${BASE_URL}/users/me`,
+  // MY_USER_INFO: `${BASE_URL}/users/me`,
 
   // Report
-  REPORT_LIST: `${BASE_URL}/reports`,
-  REPORT_DETAIL: (id) => `${BASE_URL}/reports/${id}`,
-  STORE_NEW_REPORT: `${BASE_URL}/reports`,
+  STORY_LIST: `${BASE_URL}/stories?location=1`,
+  STORY_DETAIL: (id) => `${BASE_URL}/stories/${id}`,
+  STORE_NEW_STORY: `${BASE_URL}/stories`,
 
   // Report Comment
-  REPORT_COMMENTS_LIST: (reportId) => `${BASE_URL}/reports/${reportId}/comments`,
-  STORE_NEW_REPORT_COMMENT: (reportId) => `${BASE_URL}/reports/${reportId}/comments`,
+  // REPORT_COMMENTS_LIST: (reportId) => `${BASE_URL}/reports/${reportId}/comments`,
+  // STORE_NEW_REPORT_COMMENT: (reportId) => `${BASE_URL}/reports/${reportId}/comments`,
 
   // Report Comment
-  SUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
-  UNSUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
-  SEND_REPORT_TO_ME: (reportId) => `${BASE_URL}/reports/${reportId}/notify-me`,
-  SEND_REPORT_TO_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify`,
-  SEND_REPORT_TO_ALL_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify-all`,
-  SEND_COMMENT_TO_REPORT_OWNER: (reportId, commentId) =>
-    `${BASE_URL}/reports/${reportId}/comments/${commentId}/notify`,
+  // SUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
+  // UNSUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
+  // SEND_REPORT_TO_ME: (reportId) => `${BASE_URL}/reports/${reportId}/notify-me`,
+  // SEND_REPORT_TO_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify`,
+  // SEND_REPORT_TO_ALL_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify-all`,
+  // SEND_COMMENT_TO_REPORT_OWNER: (reportId, commentId) =>
+  //   `${BASE_URL}/reports/${reportId}/comments/${commentId}/notify`,
 };
 
 export async function getRegistered({ name, email, password }) {
@@ -72,10 +72,10 @@ export async function getMyUserInfo() {
   };
 }
 
-export async function getAllReports() {
+export async function getAllStories() {
   const accessToken = getAccessToken();
 
-  const fetchResponse = await fetch(ENDPOINTS.REPORT_LIST, {
+  const fetchResponse = await fetch(ENDPOINTS.STORY_LIST, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const json = await fetchResponse.json();
@@ -89,7 +89,7 @@ export async function getAllReports() {
 export async function getReportById(id) {
   const accessToken = getAccessToken();
 
-  const fetchResponse = await fetch(ENDPOINTS.REPORT_DETAIL(id), {
+  const fetchResponse = await fetch(ENDPOINTS.STORY_DETAIL(id), {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const json = await fetchResponse.json();
@@ -100,27 +100,16 @@ export async function getReportById(id) {
   };
 }
 
-export async function storeNewReport({
-  title,
-  damageLevel,
-  description,
-  evidenceImages,
-  latitude,
-  longitude,
-}) {
+export async function storeNewReport({ description, photo, lat, lon }) {
   const accessToken = getAccessToken();
 
   const formData = new FormData();
-  formData.set('title', title);
-  formData.set('damageLevel', damageLevel);
   formData.set('description', description);
-  formData.set('latitude', latitude);
-  formData.set('longitude', longitude);
-  evidenceImages.forEach((evidenceImage) => {
-    formData.append('evidenceImages', evidenceImage);
-  });
+  formData.set('lat', lat);
+  formData.set('lon', lon);
+  formData.append('photo', photo[0]);
 
-  const fetchResponse = await fetch(ENDPOINTS.STORE_NEW_REPORT, {
+  const fetchResponse = await fetch(ENDPOINTS.STORE_NEW_STORY, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}` },
     body: formData,

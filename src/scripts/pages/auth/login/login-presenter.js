@@ -20,9 +20,9 @@ export default class LoginPresenter {
         return;
       }
 
-      this.#authModel.putAccessToken(response.data.accessToken);
+      this.#authModel.putAccessToken(response.loginResult.token);
 
-      this.#view.loginSuccessfully(response.message, response.data);
+      this.#view.loginSuccessfully(response.message, response.loginResult);
     } catch (error) {
       console.error('getLogin: error:', error);
       this.#view.loginFailed(error.message);

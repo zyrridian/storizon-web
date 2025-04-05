@@ -1,12 +1,12 @@
 import {
   generateLoaderAbsoluteTemplate,
-  generateReportItemTemplate,
+  generateStoriesItemTemplate,
   generateReportsListEmptyTemplate,
   generateReportsListErrorTemplate,
 } from '../../templates';
 import HomePresenter from './home-presenter';
 import Map from '../../utils/map';
-import * as CityCareAPI from '../../data/api';
+import * as StorizonAPI from '../../data/api';
 
 export default class HomePage {
   #presenter = null;
@@ -35,30 +35,31 @@ export default class HomePage {
   async afterRender() {
     this.#presenter = new HomePresenter({
       view: this,
-      model: CityCareAPI,
+      model: StorizonAPI,
     });
 
     await this.#presenter.initialGalleryAndMap();
   }
 
-  populateReportsList(message, reports) {
+  populateStoriesList(message, reports) {
     if (reports.length <= 0) {
-      this.populateReportsListEmpty();
+      this.populateStoriesListEmpty();
       return;
     }
 
     const html = reports.reduce((accumulator, report) => {
       if (this.#map) {
-        const coordinate = [report.location.latitude, report.location.longitude];
-        const markerOptions = { alt: report.title };
-        const popupOptions = { content: report.title };
+        const coordinate = [report.lat, report.lon];
+        const markerOptions = { alt: report.description };
+        const popupOptions = { content: report.description };
         this.#map.addMarker(coordinate, markerOptions, popupOptions);
       }
 
       return accumulator.concat(
-        generateReportItemTemplate({
+        generateStoriesItemTemplate({
           ...report,
-          reporterName: report.reporter.name,
+          reporterName: report.name,
+          placeName: report.placeName,
         }),
       );
     }, '');
@@ -68,11 +69,11 @@ export default class HomePage {
     `;
   }
 
-  populateReportsListEmpty() {
+  populateStoriesListEmpty() {
     document.getElementById('reports-list').innerHTML = generateReportsListEmptyTemplate();
   }
 
-  populateReportsListError(message) {
+  populateStoriesListError(message) {
     document.getElementById('reports-list').innerHTML = generateReportsListErrorTemplate(message);
   }
 

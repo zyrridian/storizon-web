@@ -18,16 +18,14 @@ export default class NewPresenter {
     }
   }
 
-  async postNewReport({ title, damageLevel, description, evidenceImages, latitude, longitude }) {
+  async postNewReport({ description, photo, lat, lon }) {
     this.#view.showSubmitLoadingButton();
     try {
       const data = {
-        title: title,
-        damageLevel: damageLevel,
         description: description,
-        evidenceImages: evidenceImages,
-        latitude: latitude,
-        longitude: longitude,
+        photo: photo,
+        lat: lat,
+        lon: lon,
       };
       const response = await this.#model.storeNewReport(data);
 
@@ -37,7 +35,7 @@ export default class NewPresenter {
         return;
       }
 
-      this.#view.storeSuccessfully(response.message, response.data);
+      this.#view.storeSuccessfully(response.message); //, response.listStory);
     } catch (error) {
       console.error('postNewReport: error:', error);
       this.#view.storeFailed(error.message);

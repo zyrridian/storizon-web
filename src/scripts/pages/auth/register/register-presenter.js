@@ -18,7 +18,7 @@ export default class RegisterPresenter {
         return;
       }
 
-      this.#view.registeredSuccessfully(response.message, response.data);
+      this.#view.registeredSuccessfully(response.message, response.loginResult);
     } catch (error) {
       console.error('getRegistered: error:', error);
       this.#view.registeredFailed(error.message);
