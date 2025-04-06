@@ -4,11 +4,13 @@ export default class ReportDetailPresenter {
   #reportId;
   #view;
   #apiModel;
+  #dbModel;
 
-  constructor(reportId, { view, apiModel }) {
+  constructor(reportId, { view, apiModel, dbModel }) {
     this.#reportId = reportId;
     this.#view = view;
     this.#apiModel = apiModel;
+    this.#dbModel = dbModel;
   }
 
   async showReportDetailMap() {
@@ -109,16 +111,39 @@ export default class ReportDetailPresenter {
     }
   }
 
-  showSaveButton() {
-    if (this.#isReportSaved()) {
+  async saveReport() {
+    try {
+      console.log('started... proceed to get story by id');
+      const report = await this.#apiModel.getReportById(this.#reportId);
+      console.log('after get story by id... proceed to put report');
+      await this.#dbModel.putReport(report.story);
+      console.log('after put report... proceed to show success message');
+      this.#view.saveToBookmarkSuccessfully('Success to save to bookmark');
+    } catch (error) {
+      console.error('saveReport: error:', error);
+      this.#view.saveToBookmarkFailed(error.message);
+    }
+  }
+
+  async removeReport() {
+    try {
+      await this.#dbModel.removeReport(this.#reportId);
+      this.#view.removeFromBookmarkSuccessfully('Success to remove from bookmark');
+    } catch (error) {
+      console.error('removeReport: error:', error);
+      this.#view.removeFromBookmarkFailed(error.message);
+    }
+  }
+
+  async showSaveButton() {
+    if (await this.#isReportSaved()) {
       this.#view.renderRemoveButton();
       return;
     }
-
     this.#view.renderSaveButton();
   }
 
-  #isReportSaved() {
-    return false;
+  async #isReportSaved() {
+    return !!(await this.#dbModel.getReportById(this.#reportId));
   }
 }
