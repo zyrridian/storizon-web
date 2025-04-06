@@ -4,6 +4,10 @@ import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { BASE_URL } from './config';
 
+// Remove v1 from base URL for image caching
+const baseUrl = new URL(BASE_URL); // ex: https://story-api.dicoding.dev/v1
+const baseOrigin = baseUrl.origin; // ex: https://story-api.dicoding.dev
+
 // Do precaching
 const manifest = self.__WB_MANIFEST;
 precacheAndRoute(manifest);
@@ -45,21 +49,21 @@ registerRoute(
 
 registerRoute(
   ({ request, url }) => {
-    const baseUrl = new URL(BASE_URL);
+    const baseUrl = new URL(baseOrigin);
     return baseUrl.origin === url.origin && request.destination !== 'image';
   },
   new NetworkFirst({
-    cacheName: 'citycare-api',
+    cacheName: 'storizon-api',
   }),
 );
 
 registerRoute(
   ({ request, url }) => {
-    const baseUrl = new URL(BASE_URL);
+    const baseUrl = new URL(baseOrigin);
     return baseUrl.origin === url.origin && request.destination === 'image';
   },
   new StaleWhileRevalidate({
-    cacheName: 'citycare-api-images',
+    cacheName: 'storizon-api-images',
   }),
 );
 
