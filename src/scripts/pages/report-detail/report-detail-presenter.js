@@ -68,6 +68,9 @@ export default class ReportDetailPresenter {
   //       return;
   //     }
 
+  //     // No need to wait response
+  //     this.notifyReportOwner(response.data.id);
+
   //     this.#view.postNewCommentSuccessfully(response.message, response.data);
   //   } catch (error) {
   //     console.error('postNewComment: error:', error);
@@ -76,6 +79,35 @@ export default class ReportDetailPresenter {
   //     this.#view.hideSubmitLoadingButton();
   //   }
   // }
+
+  // async notifyReportOwner(commentId) {
+  //   try {
+  //     const response = await this.#apiModel.sendCommentToReportOwnerViaNotification(
+  //       this.#reportId,
+  //       commentId,
+  //     );
+  //     if (!response.ok) {
+  //       console.error('notifyReportOwner: response:', response);
+  //       return;
+  //     }
+  //     console.log('notifyReportOwner:', response.message);
+  //   } catch (error) {
+  //     console.error('notifyReportOwner: error:', error);
+  //   }
+  // }
+
+  async notifyMe() {
+    try {
+      const response = await this.#apiModel.sendReportToMeViaNotification(this.#reportId);
+      if (!response.ok) {
+        console.error('notifyMe: response:', response);
+        return;
+      }
+      console.log('notifyMe:', response.message);
+    } catch (error) {
+      console.error('notifyMe: error:', error);
+    }
+  }
 
   showSaveButton() {
     if (this.#isReportSaved()) {

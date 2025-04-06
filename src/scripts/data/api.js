@@ -17,8 +17,8 @@ const ENDPOINTS = {
   // STORE_NEW_REPORT_COMMENT: (reportId) => `${BASE_URL}/reports/${reportId}/comments`,
 
   // Report Comment
-  // SUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
-  // UNSUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
+  SUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
+  UNSUBSCRIBE: `${BASE_URL}/notifications/subscribe`,
   // SEND_REPORT_TO_ME: (reportId) => `${BASE_URL}/reports/${reportId}/notify-me`,
   // SEND_REPORT_TO_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify`,
   // SEND_REPORT_TO_ALL_USER: (reportId) => `${BASE_URL}/reports/${reportId}/notify-all`,
